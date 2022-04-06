@@ -1,0 +1,65 @@
+{
+  "name": "tdd-express-app",
+  "version": "1.0.0",
+  "description": "tdd with expressjs",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "cross-env NODE_ENV=development nodemon index.js",
+    "test": "cross-env NODE_ENV=test node --experimental-vm-modules node_modules/jest/bin/jest.js --watch --detectOpenHandles",
+    "lint": "eslint ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YellowFlash2012/hoaxgate.git"
+  },
+  "author": "Vivien H.",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/YellowFlash2012/hoaxgate/issues"
+  },
+  "homepage": "https://github.com/YellowFlash2012/hoaxgate#readme",
+  "dependencies": {
+    "bcrypt": "^5.0.1",
+    "config": "^3.3.7",
+    "dotenv": "^16.0.0",
+    "express": "^4.17.3",
+    "morgan": "^1.10.0",
+    "pg": "^8.7.3",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.16.1"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "eslint": "^8.9.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "jest": "^27.5.1",
+    "prettier": "^2.5.1",
+    "supertest": "^6.2.2"
+  },
+  "eslintConfig": {
+    "parser": "babel-eslint",
+    "parserOptions": {
+      "ecmaVersion": 6,
+      "sourceType": "module",
+      "allowImportExportEverywhere": true
+    },
+    "extends": [
+      "eslint:recommended",
+      "plugin:prettier/recommended"
+    ],
+    "plugins": [
+      "prettier"
+    ],
+    "env": {
+      "node": true,
+      "es6": true,
+      "jest": true
+    },
+    "rules": {}
+  },
+  "prettier": {
+    "singleQuote": true
+  }
+}

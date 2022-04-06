@@ -1,0 +1,9 @@
+{
+    "database": {
+        "database": "hoaxgate_test",
+        "username": "postgres",
+        "password": "process.env.PASSWORD",
+        "dialect": "postgresql",
+        "logging": "false"
+    }
+}
