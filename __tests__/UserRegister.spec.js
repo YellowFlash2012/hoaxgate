@@ -98,30 +98,6 @@ describe("User registration", () => {
 
         expect(body.validationErrors).not.toBeUndefined()
     });
-    
-    it("returns username cannot be null when username is null", async () => {
-        const res = await postUser({
-            username: null,
-            email: 'user1@email.com',
-            password: 'pjfqig7è9K',
-        });
-
-        const body = res.body;
-
-        expect(body.validationErrors.username).toBe("Username can NOT be null")
-    });
-
-    it('returns email cannot be null when email is null', async () => {
-        const res = await postUser({
-            username: "user1",
-            email: null,
-            password: 'pjfqig7è9K',
-        });
-
-        const body = res.body;
-
-        expect(body.validationErrors.email).toBe('Email can NOT be null');
-    });
 
     it('returns errors for both when username and email are null', async () => {
         const res = await postUser({
@@ -134,4 +110,77 @@ describe("User registration", () => {
 
         expect(Object.keys(body.validationErrors)).toEqual(['username', 'email']);
     });
+
+    // it.each([
+    //     ['username', 'Username can NOT be null'],
+    //     ['email', 'Email can NOT be null'],
+    //     ['password', 'Password can NOT be null']
+    // ])("when %s is null %s is received", async (field, expectedMessage) => {
+    //     const user = {
+    //         username: "user1",
+    //         email: 'user1@email.com',
+    //         password: 'pjfqig7è9K',
+    //     };
+
+    //     user[field] = null;
+    //     const res = await postUser(user);
+
+    //     const body = req.body;
+    //     expect(body.validationErrors[field]).toBe(expectedMessage);
+    // });
+
+    it.each`
+    field|expectedMessage
+    ${"username"}|${"Username can NOT be null"}
+    ${"email"}|${"Email can NOT be null"}
+    ${"password"}|${"Password can NOT be null"}
+    `("return $expectedMessage when $field is null", async ({ field, expectedMessage }) => {
+        const user = {
+            username: 'user1',
+            email: 'user1@email.com',
+            password: 'pjfqig7è9K',
+        };
+
+        user[field] = null;
+        const res = await postUser(user);
+
+        const body = res.body;
+        expect(body.validationErrors[field]).toBe(expectedMessage);
+    });
+
+    // it('returns username cannot be null when username is null', async () => {
+    //   const res = await postUser({
+    //     username: null,
+    //     email: 'user1@email.com',
+    //     password: 'pjfqig7è9K',
+    //   });
+
+    //   const body = res.body;
+
+    //   expect(body.validationErrors.username).toBe('Username can NOT be null');
+    // });
+
+    // it('returns email cannot be null when email is null', async () => {
+    //   const res = await postUser({
+    //     username: 'user1',
+    //     email: null,
+    //     password: 'pjfqig7è9K',
+    //   });
+
+    //   const body = res.body;
+
+    //   expect(body.validationErrors.email).toBe('Email can NOT be null');
+    // });
+    
+    // it('returns error when password field is null', async () => {
+    //     const res = await postUser({
+    //         username: 'user1',
+    //         email: 'user1@email.io',
+    //         password: 'pjfqig7è9K',
+    //     });
+
+    //     const body = res.body;
+
+    //     expect(body.validationErrors.password).toBe('Password can NOT be null');
+    // });
 })
