@@ -2,12 +2,14 @@ import express from 'express'
 import userRoutes from './src/routes/Users.js'
 import { config } from 'dotenv';
 import morgan from 'morgan';
+import cors from "cors"
 
 config();
 
 const app = express();
 
 app.use(express.json());
+app.use(cors())
 
 // to get an overvie of http verbs involved in a FE req
 if (process.env.NODE_ENV === "development") {
@@ -16,6 +18,6 @@ if (process.env.NODE_ENV === "development") {
 
 app.use('/api/1.0/users', userRoutes);
 
-console.log('env ' + process.env.NODE_ENV);
+console.log('env: ' + process.env.NODE_ENV);
 
 export default app

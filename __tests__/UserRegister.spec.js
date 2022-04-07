@@ -16,25 +16,27 @@ beforeEach(() => {
     return User.destroy({ truncate: true });
 })
 
+const validUser = {
+    username: 'user1',
+    email: 'user1@email.com',
+    password: 'pjfqig7è9K',
+};
+
+const postUser = (user = validUser) => {
+    return request(app).post('/api/1.0/users').send(user);
+};
+
 describe("User registration", () => {
 
-    const postValidUser = () => {
-        return request(app).post('/api/1.0/users').send({
-            username: 'user1',
-            email: 'user1@email.com',
-            password: 'pjfqig7è9K',
-        });
-    }
-
     it('returns 200 OK when signup request is valid', async () => {
-        const res = await postValidUser();
+        const res = await postUser();
         
         expect(res.status).toBe(200);
         
     });
 
     it('returns success message when signup request is valid', async () => {
-        const res = await postValidUser();
+        const res = await postUser();
 
         expect(res.body.message).toBe('User created');
 
@@ -42,7 +44,7 @@ describe("User registration", () => {
 
     
     it('saves the user to the db', async () => {
-        await postValidUser()
+        await postUser()
     
         const userList = await User.findAll();
         
@@ -51,7 +53,7 @@ describe("User registration", () => {
     });
     
     it('saves the username and email to the db', async () => {
-        await postValidUser();
+        await postUser();
 
         const userList = await User.findAll();
         
@@ -65,7 +67,7 @@ describe("User registration", () => {
     });
 
     it('hashes the password in the db', async () => {
-        await postValidUser();
+        await postUser();
         
         const userList = await User.findAll();
 
@@ -73,5 +75,63 @@ describe("User registration", () => {
 
         expect(savedUser.password).not.toBe('pjfqig7è9K');
     
+    });
+
+    it('returns 400 when username is null', async () => {
+        const res = await postUser({
+            username: null,
+            email: 'user1@email.com',
+            password: 'pjfqig7è9K',
+        });
+
+        expect(res.status).toBe(400)
+    });
+
+    it("returns validationErrors field in res body when validation error occurs", async () => {
+        const res = await postUser({
+            username: null,
+            email: 'user1@email.com',
+            password: 'pjfqig7è9K',
+        });
+
+        const body = res.body;
+
+        expect(body.validationErrors).not.toBeUndefined()
+    });
+    
+    it("returns username cannot be null when username is null", async () => {
+        const res = await postUser({
+            username: null,
+            email: 'user1@email.com',
+            password: 'pjfqig7è9K',
+        });
+
+        const body = res.body;
+
+        expect(body.validationErrors.username).toBe("Username can NOT be null")
+    });
+
+    it('returns email cannot be null when email is null', async () => {
+        const res = await postUser({
+            username: "user1",
+            email: null,
+            password: 'pjfqig7è9K',
+        });
+
+        const body = res.body;
+
+        expect(body.validationErrors.email).toBe('Email can NOT be null');
+    });
+
+    it('returns errors for both when username and email are null', async () => {
+        const res = await postUser({
+            username: null,
+            email: null,
+            password: 'pjfqig7è9K',
+        });
+
+        const body = res.body;
+
+        expect(Object.keys(body.validationErrors)).toEqual(['username', 'email']);
     });
 })
