@@ -3,38 +3,16 @@ import express from "express";
 import User from '../models/Users.js';
 import bcrypt from 'bcrypt';
 import { check, validationResult } from "express-validator";
+import crypto from "crypto"
+import nodemailer from "nodemailer"
+import UserService from "./UserService.js"
+
 
 const router = express.Router()
 
-// const validateUsername = async (req, res, next) => {
-//     const hash = await bcrypt.hash(req.body.password, 10);
-
-//     const user = {
-//         username: req.body.username,
-//         email: req.body.email,
-//         password: hash,
-//   };
-
-//     if (user.username == null) {
-//     req.validationErrors = { username: 'username can NOT be null' };
-//     }
-//     next()
-// };
-
-// const validateEmail = async (req, res, next) => {
-//     const hash = await bcrypt.hash(req.body.password, 10);
-
-//     const user = {
-//         username: req.body.username,
-//         email: req.body.email,
-//         password: hash,
-//   };
-
-//   if (user.email == null) {
-//     req.validationErrors = { ...req.validationErrors, email: 'email can NOT be null' };
-//   }
-//     next()
-// };
+const generateToken = (length) => {
+    return crypto.randomBytes(length).toString('hex').substring(0, length);
+};
 
 router.post(
   '/',
@@ -60,28 +38,61 @@ router.post(
     .withMessage('Email can NOT be null')
     .bail()
     .isEmail()
-    .withMessage('Email is NOT valid'),
+    .withMessage('Email is NOT valid').bail().custom(async (email) => {
+      const user = await User.findOne({ where: { email: email } });
+
+      if (user) {
+        throw new Error('Email already used');
+      }
+    }),
   async (req, res) => {
-    const hash = await bcrypt.hash(req.body.password, 10);
+    const { username, email, password } = req.body;
+    const hash = await bcrypt.hash(password, 10);
 
     const user = {
-      username: req.body.username,
-      email: req.body.email,
-      password: hash,
+        username: username,
+        email: email,
+        password: hash,
+        activationToken:generateToken(19)
     };
+
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       const validationErrors = {};
       errors
         .array()
-        .forEach((error) => (validationErrors[error.param] = error.msg));
+        .forEach((error) => (validationErrors[error.param] = req.t(error.msg)));
       return res.status(400).send({ validationErrors: validationErrors });
     }
 
-    await User.create(user);
+    const transporter = nodemailer.createTransport();
+    await transporter.sendMail({
+      from: 'My app<info@my-app.io>',
+      to: email,
+      subject: 'Account Activation',
+      html: `Token is ${user.activationToken}`,
+    });
 
-    return res.send({ message: 'User created' });
+    try {
+      await User.create(user);
+      return res.send({ message: 'User created' });
+    } catch (error) {
+      return res.status(502).send({message:"Email failure"});
+    }
+    
+  
   }
 );
+
+router.post("/api/1.0/users/token/:token", async (req, res) => {
+  const token = req.params.token;
+
+  try {
+    await UserService.activate(token);
+  } catch (error) {
+    return res.status(400).send();
+  }
+  res.send();
+})
 
 export default router

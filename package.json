@@ -1,5 +1,13 @@
 {
   "name": "tdd-express-app",
+  "jest": {
+    "verbose": true,
+    "setTimeout": 60000,
+    "watchPlugins": [
+      "jest-watch-typeahead/filename",
+      "jest-watch-typeahead/testname"
+    ]
+  },
   "version": "1.0.0",
   "description": "tdd with expressjs",
   "main": "server.js",
@@ -26,7 +34,11 @@
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
     "express-validator": "^6.14.0",
+    "i18next": "^21.6.14",
+    "i18next-fs-backend": "^1.1.4",
+    "i18next-http-middleware": "^3.2.0",
     "morgan": "^1.10.0",
+    "nodemailer": "^6.7.3",
     "pg": "^8.7.3",
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.16.1"
@@ -37,7 +49,9 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
     "jest": "^27.5.1",
+    "jest-watch-typeahead": "^1.0.0",
     "prettier": "^2.5.1",
+    "smtp-server": "^3.10.0",
     "supertest": "^6.2.2"
   },
   "eslintConfig": {
