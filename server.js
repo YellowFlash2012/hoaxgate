@@ -27,6 +27,7 @@ i18next.use(Backend).use(middleware.LanguageDetector).init({
 // Importing the fs and https modules
 import https from "https";
 import fs from "fs";
+import errorHandler from './src/error/errorHandler.js';
 // Read the certificate and the private key for the https server options 
 const options = {
     key: fs.readFileSync("./config/cert.key"),
@@ -46,6 +47,8 @@ if (process.env.NODE_ENV === "development") {
 }
 
 app.use('/api/1.0/users', userRoutes);
+
+app.use(errorHandler)
 
 console.log('env: ' + process.env.NODE_ENV);
 

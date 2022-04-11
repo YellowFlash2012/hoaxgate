@@ -1,5 +1,6 @@
 const invalidTokenException = () => {
-    this.message = "account_activation_failure";
+    this.message = "Account Activation Failure";
+    this.status = 400;
 }
 
 export default invalidTokenException

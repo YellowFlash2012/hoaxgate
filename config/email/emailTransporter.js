@@ -1,12 +1,10 @@
 import nodemailer from 'nodemailer';
+import config from "config"
 
+const mailConfig = config.get("mail");
 
 const transporter = nodemailer.createTransport({
-    host: "localhost",
-    port: 8587,
-    tls: {
-        rejectUnauthorized:false
-    }
+    ...mailConfig
 });
 
 export default transporter

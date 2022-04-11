@@ -5,14 +5,15 @@ import bcrypt from 'bcrypt';
 import { check, validationResult } from "express-validator";
 import crypto from "crypto"
 import nodemailer from "nodemailer"
-import UserService from "./UserService.js"
+import * as UserService from "./UserService.js"
+import { nextTick } from "process";
+import validationException from "../error/validationException.js";
+
 
 
 const router = express.Router()
 
-const generateToken = (length) => {
-    return crypto.randomBytes(length).toString('hex').substring(0, length);
-};
+
 
 router.post(
   '/',
@@ -45,54 +46,48 @@ router.post(
         throw new Error('Email already used');
       }
     }),
-  async (req, res) => {
-    const { username, email, password } = req.body;
-    const hash = await bcrypt.hash(password, 10);
+  async (req, res, next) => {
+    // const { username, email, password } = req.body;
+    // const hash = await bcrypt.hash(password, 10);
 
-    const user = {
-        username: username,
-        email: email,
-        password: hash,
-        activationToken:generateToken(19)
-    };
+    // const user = {
+    //     username: username,
+    //     email: email,
+    //     password: hash,
+    //     activationToken:generateToken(19)
+    // };
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      const validationErrors = {};
-      errors
-        .array()
-        .forEach((error) => (validationErrors[error.param] = req.t(error.msg)));
-      return res.status(400).send({ validationErrors: validationErrors });
+      
+
+      return next(new validationException(errors.array()))
     }
 
-    const transporter = nodemailer.createTransport();
-    await transporter.sendMail({
-      from: 'My app<info@my-app.io>',
-      to: email,
-      subject: 'Account Activation',
-      html: `Token is ${user.activationToken}`,
-    });
-
     try {
-      await User.create(user);
+      // await User.create(user);
+      await UserService.save(req.body);
       return res.send({ message: 'User created' });
     } catch (error) {
-      return res.status(502).send({message:"Email failure"});
+      // return res.status(502).send({message:"Email failure"});
+      next(error)
     }
     
   
   }
 );
 
-router.post("/api/1.0/users/token/:token", async (req, res) => {
+router.post("/api/1.0/users/token/:token", async (req, res, next) => {
   const token = req.params.token;
 
   try {
     await UserService.activate(token);
+    return res.send({message:"Account successfully activated!"})
   } catch (error) {
-    return res.status(400).send();
+    // return res.status(400).send({message:"Account activation failed"});
+    next(error)
   }
-  res.send();
+
 })
 
 export default router
