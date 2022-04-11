@@ -46,3 +46,12 @@ export const activate = async (token) => {
     await user.save();
 }
 
+export const getUsers = async () => {
+  return {
+    content: [],
+    page: 0,
+    size: 10,
+    totalPages: 0,
+  };
+};
+

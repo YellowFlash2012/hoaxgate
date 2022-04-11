@@ -1,9 +1,9 @@
-const validationException = (errors) => {
-    this.status = 400;
+function validationException(errors) {
+  this.status = 400;
 
-    this.errors = errors;
+  this.errors = errors;
 
-    this.message = "Validation Failure"
+  this.message = 'Validation Failure';
 }
 
-export default validationException
+export default validationException;

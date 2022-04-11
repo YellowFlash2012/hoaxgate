@@ -3,6 +3,7 @@ import userRoutes from './src/routes/Users.js'
 import { config } from 'dotenv';
 import morgan from 'morgan';
 import cors from "cors"
+import errorHandler from './src/error/errorHandler.js';
 
 // internationalization
 import i18next from "i18next";
@@ -27,7 +28,7 @@ i18next.use(Backend).use(middleware.LanguageDetector).init({
 // Importing the fs and https modules
 import https from "https";
 import fs from "fs";
-import errorHandler from './src/error/errorHandler.js';
+
 // Read the certificate and the private key for the https server options 
 const options = {
     key: fs.readFileSync("./config/cert.key"),

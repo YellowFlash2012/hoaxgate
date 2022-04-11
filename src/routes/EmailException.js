@@ -1,6 +1,6 @@
-const emailException = () => {
-    this.message = 'email_failure';
-    this.status = 502;
+function emailException() {
+  this.message = 'email failure';
+  this.status = 502;
 }
 
-export default emailException
+export default emailException;

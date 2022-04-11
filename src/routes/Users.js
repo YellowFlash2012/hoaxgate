@@ -1,19 +1,14 @@
 import express from "express";
 
 import User from '../models/Users.js';
-import bcrypt from 'bcrypt';
-import { check, validationResult } from "express-validator";
-import crypto from "crypto"
-import nodemailer from "nodemailer"
-import * as UserService from "./UserService.js"
-import { nextTick } from "process";
-import validationException from "../error/validationException.js";
 
+import { check, validationResult } from 'express-validator';
 
+import { save, activate, getUsers, findByEmail } from './UserService.js';
 
-const router = express.Router()
+import validationException from '../error/validationException.js';
 
-
+const router = express.Router();
 
 router.post(
   '/',
@@ -39,55 +34,45 @@ router.post(
     .withMessage('Email can NOT be null')
     .bail()
     .isEmail()
-    .withMessage('Email is NOT valid').bail().custom(async (email) => {
-      const user = await User.findOne({ where: { email: email } });
+    .withMessage('Email is NOT valid')
+    .bail()
+    .custom(async (email) => {
+      const user = await findByEmail(email);
 
       if (user) {
         throw new Error('Email already used');
       }
     }),
   async (req, res, next) => {
-    // const { username, email, password } = req.body;
-    // const hash = await bcrypt.hash(password, 10);
-
-    // const user = {
-    //     username: username,
-    //     email: email,
-    //     password: hash,
-    //     activationToken:generateToken(19)
-    // };
-
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      
-
-      return next(new validationException(errors.array()))
+      return next(new validationException(errors.array()));
     }
 
     try {
-      // await User.create(user);
-      await UserService.save(req.body);
+      await save(req.body);
       return res.send({ message: 'User created' });
     } catch (error) {
-      // return res.status(502).send({message:"Email failure"});
-      next(error)
+      next(error);
     }
-    
-  
   }
 );
 
-router.post("/api/1.0/users/token/:token", async (req, res, next) => {
+router.post('/token/:token', async (req, res, next) => {
   const token = req.params.token;
 
   try {
-    await UserService.activate(token);
-    return res.send({message:"Account successfully activated!"})
+    await activate(token);
+    return res.send({ message: 'Account successfully activated!' });
   } catch (error) {
-    // return res.status(400).send({message:"Account activation failed"});
-    next(error)
+    next(error);
   }
+});
 
-})
+router.get('/', async (req, res) => {
+  const users = await getUsers();
+
+  res.send(users);
+});
 
 export default router
