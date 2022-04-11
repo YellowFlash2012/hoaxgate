@@ -70,7 +70,14 @@ router.post('/token/:token', async (req, res, next) => {
 });
 
 router.get('/', async (req, res) => {
-  const users = await getUsers();
+
+  let page = req.query.page ? Number.parseInt(req.query.page) : 0;
+
+  if (page < 0) {
+    page = 0;
+  }
+
+  const users = await getUsers(page);
 
   res.send(users);
 });
