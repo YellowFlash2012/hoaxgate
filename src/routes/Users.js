@@ -4,9 +4,18 @@ import User from '../models/Users.js';
 
 import { check, validationResult } from 'express-validator';
 
-import { save, activate, getUsers, findByEmail } from './UserService.js';
+import {
+  save,
+  activate,
+  getUsers,
+  findByEmail,
+  getUser,
+} from './UserService.js';
 
 import validationException from '../error/validationException.js';
+
+import pagination from '../middlewares/pagination.js';
+import UserNotFoundException from './UserNotFoundException.js';
 
 const router = express.Router();
 
@@ -69,17 +78,23 @@ router.post('/token/:token', async (req, res, next) => {
   }
 });
 
-router.get('/', async (req, res) => {
+// pagination
+router.get('/', pagination, async (req, res) => {
+  const { page, size } = req.pagination;
 
-  let page = req.query.page ? Number.parseInt(req.query.page) : 0;
-
-  if (page < 0) {
-    page = 0;
-  }
-
-  const users = await getUsers(page);
+  const users = await getUsers(page, size);
 
   res.send(users);
+});
+
+// single user
+router.get('/:id', async (req, res, next) => {
+  try {
+    const user = await getUser(req.params.id);
+    res.send(user);
+  } catch (error) {
+    next(error);
+  }
 });
 
 export default router
