@@ -9,8 +9,6 @@ import sequelize from '../src/config/db.js';
 // import nodemailerStub from 'nodemailer-stub';
 import SMTPServer from "smtp-server"
 
-import EmailService from '../src/routes/EmailService.js';
-
 let lastMail, server;
 let simulateSmtpFailure = false;
 
@@ -41,9 +39,9 @@ beforeAll(async () => {
 });
 
 // to run each test in isolated env
-beforeEach(() => {
+beforeEach(async () => {
     simulateSmtpFailure = false;
-    return User.destroy({ truncate: true });
+    await User.destroy({ truncate: true });
 });
 
 afterAll(async () => {
