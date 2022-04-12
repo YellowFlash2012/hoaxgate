@@ -9,8 +9,8 @@ beforeAll(async () => {
   await sequelize.sync({ alter: true });
 });
 
-beforeEach(() => {
-  return User.destroy({ truncate: true });
+beforeEach(async () => {
+    await User.destroy({ truncate: true });
 });
 
 const getUsers = () => {

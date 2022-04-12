@@ -7,7 +7,7 @@ import sequelize from '../src/config/db.js';
 import bcrypt from 'bcrypt';
 
 beforeAll(async () => {
-    await sequelize.sync();
+    await sequelize.sync({ alter: true });
 });
 
 beforeEach(async () => {
