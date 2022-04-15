@@ -5,6 +5,8 @@ import { findByEmail } from './UserService.js';
 import ForbiddenException from './ForbiddenException.js';
 import { check, validationResult } from 'express-validator';
 
+import createToken from './TokenService.js';
+
 const router = express.Router();
 
 router.post('/', check('email').isEmail(), async (req, res, next) => {
@@ -33,9 +35,12 @@ router.post('/', check('email').isEmail(), async (req, res, next) => {
         return next(new ForbiddenException());
     }
 
+    const token = createToken(user);
+
     res.send({
         id: user.id,
         username: user.username,
+        token,
     });
 });
 

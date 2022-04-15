@@ -17,7 +17,8 @@ beforeEach(async () => {
 const activeUser = {
     username: 'user1',
     email: 'user1@mail.io',
-    password: 'pjfqig7è9Kpmfd',
+    password: 'pjfqig7h9Kpmfd',
+    inactive: false,
 };
 
 const addUser = async (user = { ...activeUser }) => {
@@ -36,28 +37,28 @@ describe('Authentication', () => {
 
         const res = await postAuth({
             email: 'user1@mail.io',
-            password: 'pjfqig7è9Kpmfd',
+            password: 'pjfqig7h9Kpmfd',
         });
 
         expect(res.status).toBe(200);
     });
 
-    it('returns only user id and username when login is successful', async () => {
+    it('returns only user id, username & token when login is successful', async () => {
         const user = await addUser({ ...activeUser, inactive: false });
         const res = await postAuth({
             email: 'user1@mail.io',
-            password: 'pjfqig7è9Kpmfd',
+            password: 'pjfqig7h9Kpmfd',
         });
 
         expect(res.body.id).toBe(user.id);
         expect(res.body.username).toBe(user.username);
-        expect(Object.keys(res.body)).toEqual(['id', 'username']);
+        expect(Object.keys(res.body)).toEqual(['id', 'username', 'token']);
     });
 
     it('returns 401 when user does NOT exist', async () => {
         const res = await postAuth({
             email: 'user1@mail.io',
-            password: 'pjfqig7è9Kpmfd',
+            password: 'pjfqig7h9Kpmfd',
         });
 
         expect(res.status).toBe(401);
@@ -67,7 +68,7 @@ describe('Authentication', () => {
         const nowInMills = new Date().getTime();
         const res = await postAuth({
             email: 'user1@mail.io',
-            password: 'pjfqig7è9Kpmfd',
+            password: 'pjfqig7h9Kpmfd',
         });
 
         const error = res.body;
@@ -82,7 +83,7 @@ describe('Authentication', () => {
 
         const res = await postAuth({
             email: 'user1@mail.io',
-            password: '---*ig7è9Kpmfd',
+            password: '---*ig7h9Kpmfd',
         });
 
         expect(res.status).toBe(401);
@@ -93,7 +94,7 @@ describe('Authentication', () => {
 
         const res = await postAuth({
             email: 'user1@mail.io',
-            password: 'pjfqig7è9Kpmfd',
+            password: 'pjfqig7h9Kpmfd',
         });
 
         expect(res.status).toBe(403);
@@ -105,7 +106,7 @@ describe('Authentication', () => {
         const nowInMills = new Date().getTime();
         const res = await postAuth({
             email: 'user1@mail.io',
-            password: 'pjfqig7è9Kpmfd',
+            password: 'pjfqig7h9Kpmfd',
         });
 
         const error = res.body;
@@ -116,7 +117,7 @@ describe('Authentication', () => {
     });
 
     it('returns 401 when email is NOT valid', async () => {
-        const res = await postAuth({ password: 'pjfqig7è9Kpmfd' });
+        const res = await postAuth({ password: 'pjfqig7h9Kpmfd' });
 
         expect(res.status).toBe(401);
     });
@@ -125,5 +126,18 @@ describe('Authentication', () => {
         const res = await postAuth({ email: 'user1@mail.io' });
 
         expect(res.status).toBe(401);
+    });
+
+    it('returns token in res body when credentials are valid', async () => {
+        await addUser();
+
+        const res = await postAuth({
+            email: 'user1@mail.io',
+            password: 'pjfqig7h9Kpmfd',
+        });
+
+        console.debug(res.body.token);
+
+        expect(res.body.token).not.toBeUndefined();
     });
 });
