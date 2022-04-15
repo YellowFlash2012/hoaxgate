@@ -35,7 +35,7 @@ router.post('/', check('email').isEmail(), async (req, res, next) => {
         return next(new ForbiddenException());
     }
 
-    const token = createToken(user);
+    const token = await createToken(user);
 
     res.send({
         id: user.id,

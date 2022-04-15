@@ -1,11 +1,24 @@
 import jwt from 'jsonwebtoken';
+import Token from '../models/Token.js';
+import randomString from '../shared/generator.js';
 
-export const createToken = (user) => {
-    return jwt.sign({ id: user.id }, process.env.jwt_secrets);
+export const createToken = async (user) => {
+    const token = randomString(32);
+
+    await Token.create({
+        token: token,
+        userId: user.id,
+    });
+
+    return token;
 };
 
-export const verify = (token) => {
-    return jwt.verify(token, process.env.jwt_secrets);
+export const verify = async (token) => {
+    const tokenInDB = await Token.findOne({ where: { token: token } });
+
+    const userId = tokenInDB.userId;
+
+    return { id: userId };
 };
 
 

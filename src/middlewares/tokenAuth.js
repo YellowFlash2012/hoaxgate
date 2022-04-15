@@ -1,4 +1,4 @@
-import { verify } from '../routes/TokenService';
+import { verify } from '../routes/TokenService.js';
 
 const tokenAuth = async (req, res, next) => {
     const auth = req.headers.authorization;
