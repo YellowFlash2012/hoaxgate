@@ -4,7 +4,7 @@ import User from './src/models/Users.js';
 import bcrypt from 'bcrypt';
 
 const addUsers = async (activeUsersCount, inactiveUsersCount = 0) => {
-    const hash = await bcrypt.hash('pjfqig7è9Kpmfd', 10);
+    const hash = await bcrypt.hash('pjfqig7h9Kpmfd', 10);
 
     for (let i = 0; i < activeUsersCount + inactiveUsersCount; i++) {
         await User.create({

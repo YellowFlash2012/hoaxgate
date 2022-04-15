@@ -4,12 +4,14 @@ import User from '../models/Users.js';
 
 import { check, validationResult } from 'express-validator';
 
+
 import {
     save,
     activate,
     getUsers,
     findByEmail,
     getUser,
+    updateUser,
 } from './UserService.js';
 
 import validationException from '../error/validationException.js';
@@ -17,6 +19,7 @@ import validationException from '../error/validationException.js';
 import pagination from '../middlewares/pagination.js';
 import UserNotFoundException from './UserNotFoundException.js';
 import ForbiddenException from './ForbiddenException.js';
+import basicAuth from '../middlewares/basicAuth.js';
 
 const router = express.Router();
 
@@ -79,11 +82,12 @@ router.post('/token/:token', async (req, res, next) => {
     }
 });
 
-// pagination
-router.get('/', pagination, async (req, res) => {
+// get all users & pagination
+router.get('/', pagination, basicAuth, async (req, res) => {
+    const authenticatedUser = req.authenticatedUser;
     const { page, size } = req.pagination;
 
-    const users = await getUsers(page, size);
+    const users = await getUsers(page, size, authenticatedUser);
 
     res.send(users);
 });
@@ -99,8 +103,16 @@ router.get('/:id', async (req, res, next) => {
 });
 
 // update user
-router.put('/:id', (req, res) => {
-    throw new ForbiddenException();
+router.put('/:id', basicAuth, async (req, res, next) => {
+    const authUser = req.authenticatedUser;
+
+    if (!authUser || authUser.id != req.params.id) {
+        return next(new ForbiddenException('Unauthorized user update'));
+    }
+
+    await updateUser(req.params.id, req.body);
+
+    return res.send();
 });
 
 export default router;
