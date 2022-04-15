@@ -5,7 +5,7 @@ import { findByEmail } from './UserService.js';
 import ForbiddenException from './ForbiddenException.js';
 import { check, validationResult } from 'express-validator';
 
-import createToken from './TokenService.js';
+import { createToken } from './TokenService.js';
 
 const router = express.Router();
 

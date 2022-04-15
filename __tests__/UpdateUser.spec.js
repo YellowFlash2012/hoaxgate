@@ -27,13 +27,25 @@ const addUser = async (user = { ...activeUser }) => {
     return await User.create(user);
 };
 
-const putUser = (id = 7, body = null, options = {}) => {
-    const agent = request(app).put('/api/1.0/users/' + id);
+const putUser = async (id = 7, body = null, options = {}) => {
+    let agent = request(app);
+
+    let token;
 
     if (options.auth) {
-        const { email, password } = options.auth;
+        const res = await agent.post('/api/1.0/auth').send(options.auth);
 
-        agent.auth(email, password);
+        token = res.body.token;
+    }
+
+    agent = request(app).put('/api/1.0/users/' + id);
+
+    if (token) {
+        agent.set('Authorization', `Bearer ${token}`);
+    }
+
+    if (options.token) {
+        agent.set('Authorization', `Bearer ${options.token}`);
     }
 
     return agent.send(body);
@@ -113,5 +125,11 @@ describe('Update user', () => {
         const inDBUser = await User.findOne({ where: { id: savedUser.id } });
 
         expect(inDBUser.username).toBe(validUpdate.username);
+    });
+
+    it('returns 403 when token is not valid', async () => {
+        const res = await putUser(7, null, { token: '123' });
+
+        expect(res.status).toBe(403);
     });
 });
