@@ -22,6 +22,7 @@ import pagination from '../middlewares/pagination.js';
 import ForbiddenException from './ForbiddenException.js';
 import basicAuth from '../middlewares/basicAuth.js';
 import tokenAuth from '../middlewares/tokenAuth.js';
+import { deleteToken } from './TokenService.js';
 
 const router = express.Router();
 
@@ -126,6 +127,7 @@ router.delete('/:id', tokenAuth, async (req, res, next) => {
     }
 
     await deleteUser(req.params.id);
+
     res.send();
 });
 

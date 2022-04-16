@@ -8,6 +8,7 @@ import invalidTokenException from './invalidTokenException.js';
 import randomString from '../shared/generator.js';
 import UserNotFoundException from './UserNotFoundException.js';
 
+
 export const save = async (body) => {
     const { username, email, password } = body;
     const hash = await bcrypt.hash(password, 10);

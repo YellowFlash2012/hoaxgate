@@ -23,3 +23,4 @@ export const verify = async (token) => {
 export const deleteToken = async (token) => {
     await Token.destroy({ where: { token: token } });
 };
+

@@ -41,8 +41,9 @@ beforeAll(async () => {
 
 // to run each test in isolated env
 beforeEach(async () => {
+    // { cascade: true } was added because a realtionship has been established between token and user models
     simulateSmtpFailure = false;
-    await User.destroy({ truncate: true });
+    await User.destroy({ truncate: { cascade: true } });
 });
 
 afterAll(async () => {

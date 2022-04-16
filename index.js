@@ -16,7 +16,7 @@ const addUsers = async (activeUsersCount, inactiveUsersCount = 0) => {
     }
 };
 
-sequelize.sync({ alter: true }).then(async () => {
+sequelize.sync({ force: true }).then(async () => {
     await addUsers(25);
 });
 
