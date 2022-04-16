@@ -12,6 +12,7 @@ import {
     findByEmail,
     getUser,
     updateUser,
+    deleteUser,
 } from './UserService.js';
 
 import validationException from '../error/validationException.js';
@@ -114,6 +115,18 @@ router.put('/:id', tokenAuth, async (req, res, next) => {
     await updateUser(req.params.id, req.body);
 
     return res.send();
+});
+
+// delete user
+router.delete('/:id', tokenAuth, async (req, res, next) => {
+    const authUser = req.authenticatedUser;
+
+    if (!authUser || authUser.id != req.params.id) {
+        return next(new ForbiddenException('Unauthorized user deletion'));
+    }
+
+    await deleteUser(req.params.id);
+    res.send();
 });
 
 export default router;

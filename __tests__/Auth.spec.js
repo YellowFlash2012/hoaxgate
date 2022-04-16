@@ -5,6 +5,7 @@ import User from '../src/models/Users.js';
 
 import sequelize from '../src/config/db.js';
 import bcrypt from 'bcrypt';
+import Token from '../src/models/Token.js';
 
 beforeAll(async () => {
     await sequelize.sync({ alter: true });
@@ -29,6 +30,16 @@ const addUser = async (user = { ...activeUser }) => {
 
 const postAuth = async (credentials) => {
     return await request(app).post('/api/1.0/auth').send(credentials);
+};
+
+const postLogout = (options = {}) => {
+    const agent = request(app).post('/api/1.0/auth/logout');
+
+    if (options.token) {
+        agent.set('Authorization', `Bearer ${options.token}`);
+    }
+
+    return agent.send();
 };
 
 describe('Authentication', () => {
@@ -136,8 +147,31 @@ describe('Authentication', () => {
             password: 'pjfqig7h9Kpmfd',
         });
 
-        console.debug(res.body.token);
-
         expect(res.body.token).not.toBeUndefined();
+    });
+});
+
+describe('Logout', () => {
+    it('returns 200 ok when unauthorized req sent for logout', async () => {
+        const res = await postLogout();
+
+        expect(res.status).toBe(200);
+    });
+
+    it('removes the token from DB', async () => {
+        await addUser();
+
+        const res = await postAuth({
+            email: 'user1@mail.io',
+            password: 'pjfqig7h9Kpmfd',
+        });
+
+        const token = res.body.token;
+
+        await postLogout({ token: token });
+
+        const storedToken = await Token.findOne({ where: { token: token } });
+
+        expect(storedToken).toBeNull();
     });
 });

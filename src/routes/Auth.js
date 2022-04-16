@@ -5,7 +5,7 @@ import { findByEmail } from './UserService.js';
 import ForbiddenException from './ForbiddenException.js';
 import { check, validationResult } from 'express-validator';
 
-import { createToken } from './TokenService.js';
+import { createToken, deleteToken } from './TokenService.js';
 
 const router = express.Router();
 
@@ -42,6 +42,17 @@ router.post('/', check('email').isEmail(), async (req, res, next) => {
         username: user.username,
         token,
     });
+});
+
+router.post('/logout', async (req, res) => {
+    const auth = req.headers.authorization;
+
+    if (auth) {
+        const token = auth.substring(7);
+
+        await deleteToken(token);
+    }
+    res.send();
 });
 
 export default router;

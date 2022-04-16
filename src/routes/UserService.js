@@ -91,3 +91,7 @@ export const updateUser = async (id, updatedBody) => {
 
     await user.save();
 };
+
+export const deleteUser = async (id) => {
+    await User.destroy({ where: { id: id } });
+};

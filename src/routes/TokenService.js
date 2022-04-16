@@ -1,4 +1,3 @@
-import jwt from 'jsonwebtoken';
 import Token from '../models/Token.js';
 import randomString from '../shared/generator.js';
 
@@ -21,4 +20,6 @@ export const verify = async (token) => {
     return { id: userId };
 };
 
-
+export const deleteToken = async (token) => {
+    await Token.destroy({ where: { token: token } });
+};
