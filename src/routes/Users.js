@@ -20,9 +20,7 @@ import validationException from '../error/validationException.js';
 import pagination from '../middlewares/pagination.js';
 
 import ForbiddenException from './ForbiddenException.js';
-import basicAuth from '../middlewares/basicAuth.js';
-import tokenAuth from '../middlewares/tokenAuth.js';
-import { deleteToken } from './TokenService.js';
+
 
 const router = express.Router();
 
@@ -86,7 +84,7 @@ router.post('/token/:token', async (req, res, next) => {
 });
 
 // get all users & pagination
-router.get('/', pagination, tokenAuth, async (req, res) => {
+router.get('/', pagination, async (req, res) => {
     const authenticatedUser = req.authenticatedUser;
     const { page, size } = req.pagination;
 
@@ -106,7 +104,7 @@ router.get('/:id', async (req, res, next) => {
 });
 
 // update user
-router.put('/:id', tokenAuth, async (req, res, next) => {
+router.put('/:id', async (req, res, next) => {
     const authUser = req.authenticatedUser;
 
     if (!authUser || authUser.id != req.params.id) {
@@ -119,7 +117,7 @@ router.put('/:id', tokenAuth, async (req, res, next) => {
 });
 
 // delete user
-router.delete('/:id', tokenAuth, async (req, res, next) => {
+router.delete('/:id', async (req, res, next) => {
     const authUser = req.authenticatedUser;
 
     if (!authUser || authUser.id != req.params.id) {
