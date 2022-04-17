@@ -1,17 +1,17 @@
 {
-    "database":{
-        "database":"hoaxgate",
-        "username":"postgres",
-        "password":"process.env.PASSWORD",
-        "dialect":"postgresql",
-        "logging":"false"
+    "database": {
+        "database": "hoaxgate",
+        "username": "postgres",
+        "password": "process.env.PASSWORD",
+        "dialect": "postgresql",
+        "logging": "false"
     },
-    "mail":{
-      "host": "smtp.ethereal.email",
-      "port": 587,
-      "auth": {
-        "user": "elmira.paucek51@ethereal.email",
-        "pass": "Q6yzxWFN7MqcPCgcXH"
-      }
+    "mail": {
+        "host": "smtp.ethereal.email",
+        "port": 587,
+        "auth": {
+            "user": "elmira.paucek51@ethereal.email",
+            "pass": "Q6yzxWFN7MqcPCgcXH"
+        }
     }
 }

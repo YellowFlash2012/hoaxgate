@@ -1,6 +1,6 @@
 import User from '../models/Users.js';
 import bcrypt from 'bcrypt';
-import sendAccountActivation from './EmailService.js';
+import { sendAccountActivation, sendPasswordReset } from './EmailService.js';
 import EmailException from './EmailException.js';
 import { Sequelize } from 'sequelize';
 import sequelize from '../config/db.js';
@@ -107,4 +107,10 @@ export const passwordResetRequest = async (email) => {
     }
     user.passwordResetToken = randomString(16);
     await user.save();
+
+    try {
+        await sendPasswordReset(email, user.passwordResetToken);
+    } catch (error) {
+        throw new EmailException();
+    }
 };

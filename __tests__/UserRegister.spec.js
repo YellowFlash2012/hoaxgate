@@ -8,6 +8,7 @@ import User from '../src/models/Users.js';
 import sequelize from '../src/config/db.js';
 // import nodemailerStub from 'nodemailer-stub';
 import SMTPServer from "smtp-server"
+import config from 'config';
 
 let lastMail, server;
 let simulateSmtpFailure = false;
