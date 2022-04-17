@@ -13,6 +13,7 @@ import {
     getUser,
     updateUser,
     deleteUser,
+    passwordResetRequest,
 } from './UserService.js';
 
 import validationException from '../error/validationException.js';
@@ -20,7 +21,7 @@ import validationException from '../error/validationException.js';
 import pagination from '../middlewares/pagination.js';
 
 import ForbiddenException from './ForbiddenException.js';
-
+import NotFoundException from '../error/NotFoundException.js';
 
 const router = express.Router();
 
@@ -128,5 +129,26 @@ router.delete('/:id', async (req, res, next) => {
 
     res.send();
 });
+
+// password reset
+router.post(
+    '/password-reset',
+    check('email').isEmail().withMessage('Invalid email'),
+    async (req, res, next) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return next(new validationException(errors.array()));
+        }
+
+        try {
+            await passwordResetRequest(req.body.email);
+            return res.send({
+                message: 'Password reset request was successful!',
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+);
 
 export default router;

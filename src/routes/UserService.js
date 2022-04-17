@@ -7,7 +7,7 @@ import sequelize from '../config/db.js';
 import invalidTokenException from './invalidTokenException.js';
 import randomString from '../shared/generator.js';
 import UserNotFoundException from './UserNotFoundException.js';
-
+import NotFoundException from '../error/NotFoundException.js';
 
 export const save = async (body) => {
     const { username, email, password } = body;
@@ -95,4 +95,16 @@ export const updateUser = async (id, updatedBody) => {
 
 export const deleteUser = async (id) => {
     await User.destroy({ where: { id: id } });
+};
+
+export const passwordResetRequest = async (email) => {
+    const user = await findByEmail(email);
+
+    if (!user) {
+        throw new NotFoundException(
+            'Unknown email, please enter a correct email!'
+        );
+    }
+    user.passwordResetToken = randomString(16);
+    await user.save();
 };
