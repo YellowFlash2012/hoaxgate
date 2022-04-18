@@ -8,7 +8,7 @@ import User from '../src/models/Users.js';
 import sequelize from '../src/config/db.js';
 import bcrypt from 'bcrypt';
 import SMTPServer from 'smtp-server';
-import config from 'config';
+
 
 let lastMail, server;
 let simulateSmtpFailure = false;
@@ -93,6 +93,12 @@ const postPasswordReset = (email = 'user1@mail.io') => {
     return agent.send({ email: email });
 };
 
+const putPasswordUpdate = (body = {}) => {
+    const agent = request(app).put('/api/1.0/users/password-reset');
+
+    return agent.send(body);
+};
+
 describe('Password Reset Req', () => {
     it('returns 404 when a password reset req is sent from unknown email', async () => {
         const res = await postPasswordReset();
@@ -133,5 +139,33 @@ describe('Password Reset Req', () => {
         const user = await addUser();
         const res = await postPasswordReset(user.email);
         expect(res.status).toBe(502);
+    });
+});
+
+describe('Password Update', () => {
+    it("returns 403 when password update req doesn't have valid password reset token", async () => {
+        const res = await putPasswordUpdate({
+            password: 'pjfqig7h9Kpmfd',
+            passwordResetToken: 'abcd',
+        });
+        expect(res.status).toBe(403);
+    });
+    it('returns 403 when password update req with password pattern and invalid token', async () => {
+        const res = await putPasswordUpdate({
+            password: 'not-valid',
+            passwordResetToken: 'abcd',
+        });
+        expect(res.status).toBe(403);
+    });
+    it('returns 400 when trying to update with invalid password pattern and valid token', async () => {
+        const user = await addUser();
+        user.passwordResetToken = 'test-token';
+        await user.save();
+
+        const res = await putPasswordUpdate({
+            password: 'not-valid',
+            passwordResetToken: 'test-token',
+        });
+        expect(res.status).toBe(400);
     });
 });
