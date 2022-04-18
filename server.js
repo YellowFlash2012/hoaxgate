@@ -33,12 +33,15 @@ i18next
 // Importing the fs and https modules
 import https from 'https';
 import fs from 'fs';
+import createFolders from './src/file/FileService.js';
 
 // Read the certificate and the private key for the https server options
 const options = {
     key: fs.readFileSync('./config/cert.key'),
     cert: fs.readFileSync('./config/cert.crt'),
 };
+
+createFolders();
 
 const app = express();
 

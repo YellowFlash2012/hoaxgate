@@ -13,5 +13,7 @@
             "user": "elmira.paucek51@ethereal.email",
             "pass": "Q6yzxWFN7MqcPCgcXH"
         }
-    }
+    },
+    "uploadDir": "uploads-dev",
+    "profileDir": "profile"
 }

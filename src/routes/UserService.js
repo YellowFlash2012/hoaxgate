@@ -93,7 +93,7 @@ export const updateUser = async (id, updatedBody) => {
 
     // saves the user img when update contains img as base64
     user.image = updatedBody.image;
-
+    debugger;
     await user.save();
 
     return {
