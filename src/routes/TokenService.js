@@ -59,3 +59,7 @@ export const scheduledCleanup = () => {
         });
     }, 60 * 60 * 1000);
 };
+
+export const clearTokens = async (userId) => {
+    await Token.destroy({ where: { userId: userId } });
+};

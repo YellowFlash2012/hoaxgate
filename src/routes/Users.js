@@ -14,6 +14,7 @@ import {
     updateUser,
     deleteUser,
     passwordResetRequest,
+    updatePassword,
 } from './UserService.js';
 
 import validationException from '../error/validationException.js';
@@ -187,6 +188,9 @@ router.put(
             return next(new validationException(errors.array()));
             // return res.status(400).send();
         }
+
+        await updatePassword(req.body);
+        res.send();
     }
 );
 

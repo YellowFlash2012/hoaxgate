@@ -8,6 +8,7 @@ import invalidTokenException from './invalidTokenException.js';
 import randomString from '../shared/generator.js';
 import UserNotFoundException from './UserNotFoundException.js';
 import NotFoundException from '../error/NotFoundException.js';
+import { clearTokens } from './TokenService.js';
 
 export const save = async (body) => {
     const { username, email, password } = body;
@@ -113,4 +114,25 @@ export const passwordResetRequest = async (email) => {
     } catch (error) {
         throw new EmailException();
     }
+};
+
+export const updatePassword = async (updateReq) => {
+    const user = await User.findOne({
+        where: { passwordResetToken: updateReq.passwordResetToken },
+    });
+
+    const hash = await bcrypt.hash(updateReq.password, 10);
+
+    user.password = hash;
+
+    // clears the reset token in DB when req is valid
+    user.passwordResetToken = null;
+
+    // activates & clears activation token if account is inactive
+    user.inactive = false;
+    user.activationToken = null;
+
+    await user.save();
+
+    await clearTokens(user.id);
 };
