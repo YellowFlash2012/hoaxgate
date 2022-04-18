@@ -5,6 +5,8 @@ import User from '../src/models/Users.js';
 
 import sequelize from '../src/config/db.js';
 import bcrypt from 'bcrypt';
+import path from 'path';
+import fs from 'fs';
 
 beforeAll(async () => {
     await sequelize.sync({ force: true });
@@ -131,5 +133,42 @@ describe('Update user', () => {
         const res = await putUser(7, null, { token: '123' });
 
         expect(res.status).toBe(403);
+    });
+
+    it('saves the user img when update contains img as base64', async () => {
+        const filePath = path.join('.', '__tests__', 'assets', 'test-png.png');
+
+        const fileInBase64 = fs.readFileSync(filePath, { encoding: 'base64' });
+
+        const savedUser = await addUser();
+        const validUpdate = { username: 'user1-echo', image: fileInBase64 };
+
+        await putUser(savedUser.id, validUpdate, {
+            auth: { email: savedUser.email, password: 'pjfqig7h9Kpmfd' },
+        });
+
+        const inDBUser = await User.findOne({ where: { id: savedUser.id } });
+
+        expect(inDBUser.image).toBeTruthy();
+    });
+
+    it('returns success body with only id, username, email,image', async () => {
+        const filePath = path.join('.', '__tests__', 'assets', 'test-png.png');
+
+        const fileInBase64 = fs.readFileSync(filePath, { encoding: 'base64' });
+
+        const savedUser = await addUser();
+        const validUpdate = { username: 'user1-echo', image: fileInBase64 };
+
+        const res = await putUser(savedUser.id, validUpdate, {
+            auth: { email: savedUser.email, password: 'pjfqig7h9Kpmfd' },
+        });
+
+        expect(Object.keys(res.body)).toEqual([
+            'id',
+            'username',
+            'email',
+            'image',
+        ]);
     });
 });

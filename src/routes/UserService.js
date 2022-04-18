@@ -60,7 +60,7 @@ export const getUsers = async (page, size, authenticatedUser) => {
             },
         },
 
-        attributes: ['id', 'username', 'email'],
+        attributes: ['id', 'username', 'email', 'image'],
         limit: size,
         offset: page * size,
     });
@@ -76,7 +76,7 @@ export const getUsers = async (page, size, authenticatedUser) => {
 export const getUser = async (id) => {
     const user = await User.findOne({
         where: { id: id, inactive: false },
-        attributes: ['id', 'username', 'email'],
+        attributes: ['id', 'username', 'email', 'image'],
     });
 
     if (!user) {
@@ -91,7 +91,17 @@ export const updateUser = async (id, updatedBody) => {
 
     user.username = updatedBody.username;
 
+    // saves the user img when update contains img as base64
+    user.image = updatedBody.image;
+
     await user.save();
+
+    return {
+        id: id,
+        username: user.username,
+        email: user.email,
+        image: user.image,
+    };
 };
 
 export const deleteUser = async (id) => {

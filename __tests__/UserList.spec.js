@@ -7,7 +7,7 @@ import User from '../src/models/Users.js';
 import sequelize from '../src/config/db.js';
 
 beforeAll(async () => {
-    await sequelize.sync({ alter: true });
+    await sequelize.sync({ force: true });
 });
 
 beforeEach(async () => {
@@ -80,12 +80,12 @@ describe('Users list', () => {
         expect(res.body.content.length).toBe(6);
     });
 
-    it('returns only id, username & email when users are queried', async () => {
+    it('returns only id, username, email & image when users are queried', async () => {
         await addUsers(11);
 
         const res = await getUsers();
         const user = res.body.content[0];
-        expect(Object.keys(user)).toEqual(['id', 'username', 'email']);
+        expect(Object.keys(user)).toEqual(['id', 'username', 'email', 'image']);
     });
 
     it('returns 2 as totalPages where there are 15 active users and 7 inactive users', async () => {
@@ -161,55 +161,60 @@ describe('Users list', () => {
 });
 
 describe('Single user', () => {
-  const getUser = (id = 7) => {
-    return request(app).get('/api/1.0/users/' + id);
-  };
-  it('returns 404 when user is NOT found', async () => {
-    const res = await getUser();
+    const getUser = (id = 7) => {
+        return request(app).get('/api/1.0/users/' + id);
+    };
+    it('returns 404 when user is NOT found', async () => {
+        const res = await getUser();
 
-    expect(res.status).toBe(404);
-  });
-
-  it('returns proper error body when user not found', async () => {
-    const nowInMillis = new Date().getTime();
-    const res = await getUser();
-
-    const error = res.body;
-    expect(error.path).toBe('/api/1.0/users/7');
-    expect(error.timestamp).toBeGreaterThan(nowInMillis);
-    expect(Object.keys(error)).toEqual(['path', 'timestamp', 'message']);
-  });
-
-  it('returns 200 when an active user exists', async () => {
-    const user = await User.create({
-      username: 'user1',
-      email: 'user1@mail.io',
-      inactive: false,
+        expect(res.status).toBe(404);
     });
 
-    const res = await getUser(user.id);
-    expect(res.status).toBe(200);
-  });
+    it('returns proper error body when user not found', async () => {
+        const nowInMillis = new Date().getTime();
+        const res = await getUser();
 
-  it('returns id, username,email in res.body when an active user is found', async () => {
-    const user = await User.create({
-      username: 'user1',
-      email: 'user1@mail.io',
-      inactive: false,
+        const error = res.body;
+        expect(error.path).toBe('/api/1.0/users/7');
+        expect(error.timestamp).toBeGreaterThan(nowInMillis);
+        expect(Object.keys(error)).toEqual(['path', 'timestamp', 'message']);
     });
 
-    const res = await getUser(user.id);
-    expect(Object.keys(res.body)).toEqual(['id', 'username', 'email']);
-  });
+    it('returns 200 when an active user exists', async () => {
+        const user = await User.create({
+            username: 'user1',
+            email: 'user1@mail.io',
+            inactive: false,
+        });
 
-  it('returns 404 when the user is inactive', async () => {
-    const user = await User.create({
-      username: 'user1',
-      email: 'user1@mail.io',
-      inactive: true,
+        const res = await getUser(user.id);
+        expect(res.status).toBe(200);
     });
 
-    const res = await getUser(user.id);
-    expect(res.status).toBe(404);
-  });
+    it('returns id, username,email & image in res.body when an active user is found', async () => {
+        const user = await User.create({
+            username: 'user1',
+            email: 'user1@mail.io',
+            inactive: false,
+        });
+
+        const res = await getUser(user.id);
+        expect(Object.keys(res.body)).toEqual([
+            'id',
+            'username',
+            'email',
+            'image',
+        ]);
+    });
+
+    it('returns 404 when the user is inactive', async () => {
+        const user = await User.create({
+            username: 'user1',
+            email: 'user1@mail.io',
+            inactive: true,
+        });
+
+        const res = await getUser(user.id);
+        expect(res.status).toBe(404);
+    });
 });

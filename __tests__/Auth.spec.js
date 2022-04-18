@@ -54,7 +54,7 @@ describe('Authentication', () => {
         expect(res.status).toBe(200);
     });
 
-    it('returns only user id, username & token when login is successful', async () => {
+    it('returns only user id, username, token & image when login is successful', async () => {
         const user = await addUser({ ...activeUser, inactive: false });
         const res = await postAuth({
             email: 'user1@mail.io',
@@ -63,7 +63,12 @@ describe('Authentication', () => {
 
         expect(res.body.id).toBe(user.id);
         expect(res.body.username).toBe(user.username);
-        expect(Object.keys(res.body)).toEqual(['id', 'username', 'token']);
+        expect(Object.keys(res.body)).toEqual([
+            'id',
+            'username',
+            'token',
+            'image',
+        ]);
     });
 
     it('returns 401 when user does NOT exist', async () => {

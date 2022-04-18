@@ -113,9 +113,9 @@ router.put('/:id', async (req, res, next) => {
         return next(new ForbiddenException('Unauthorized user update'));
     }
 
-    await updateUser(req.params.id, req.body);
+    const user = await updateUser(req.params.id, req.body);
 
-    return res.send();
+    return res.send(user);
 });
 
 // delete user
