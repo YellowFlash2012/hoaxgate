@@ -1,4 +1,4 @@
-import createFolders from '../src/file/FileService.js';
+import { createFolders } from '../src/file/FileService.js';
 import fs from 'fs';
 import path from 'path';
 
