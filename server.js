@@ -7,12 +7,20 @@ import cors from 'cors';
 import errorHandler from './src/error/errorHandler.js';
 import tokenAuth from './src/middlewares/tokenAuth.js';
 
+import path from 'path';
+import fs from 'fs';
+import configParams from 'config';
+
+import { createFolders } from './src/file/FileService.js';
+
 // internationalization
 import i18next from 'i18next';
 import Backend from 'i18next-fs-backend';
 import middleware from 'i18next-http-middleware';
-
 config();
+
+const { uploadDir, profileDir } = configParams;
+const profileFolder = path.join('.', uploadDir, profileDir);
 
 i18next
     .use(Backend)
@@ -30,17 +38,6 @@ i18next
         },
     });
 
-// Importing the fs and https modules
-import https from 'https';
-import fs from 'fs';
-import { createFolders } from './src/file/FileService.js';
-
-// Read the certificate and the private key for the https server options
-const options = {
-    key: fs.readFileSync('./config/cert.key'),
-    cert: fs.readFileSync('./config/cert.crt'),
-};
-
 createFolders();
 
 const app = express();
@@ -55,20 +52,20 @@ if (process.env.NODE_ENV === 'development') {
     app.use(morgan('dev'));
 }
 
+// serving static resources
+app.use(
+    '/images',
+    express.static(profileFolder, { maxAge: 365 * 24 * 60 * 60 * 1000 })
+);
+
 // middleware for refreshes lastUsedAt when unexpired token is used an endpoint not needing auth
 app.use(tokenAuth);
 
 app.use('/api/1.0/users', userRoutes);
 app.use('/api/1.0/auth', authRoutes);
 
-app.use(errorHandler)
+app.use(errorHandler);
 
 console.log('env: ' + process.env.NODE_ENV);
-
-// Create the https server by initializing it with 'options'
-// -------------------- STEP 3
-// https.createServer(options, app).listen(5000, () => {
-//     console.log(`HTTPS server started on port 5000`);
-// });
 
 export default app

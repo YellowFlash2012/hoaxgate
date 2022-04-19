@@ -1,8 +1,8 @@
 import fs from 'fs';
-import path, { resolve } from 'path';
+import path from 'path';
 
 import config from 'config';
-import randomString from '../shared/generator';
+import randomString from '../shared/generator.js';
 const { uploadDir, profileDir } = config;
 const profileFolder = path.join('.', uploadDir, profileDir);
 
