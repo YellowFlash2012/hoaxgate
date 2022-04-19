@@ -22,6 +22,11 @@ export const saveProfileImg = async (base64File) => {
     const filename = randomString(32);
     const filePath = path.join(profileFolder, filename);
 
-    await fs.promises.writeFile(filePath, base64File, 'base64');
+    await fs.promises.writeFile(filePath, String(base64File), 'base64');
     return filename;
+};
+
+export const deleteProfileImage = async (filename) => {
+    const filePath = path.join(profileFolder, filename);
+    await fs.promises.unlink(filePath);
 };

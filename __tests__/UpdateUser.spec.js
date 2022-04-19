@@ -57,8 +57,8 @@ const putUser = async (id = 7, body = null, options = {}) => {
     return agent.send(body);
 };
 
-const readFileAsBase64 = () => {
-    const filePath = path.join('.', '__tests__', 'assets', 'test-png.png');
+const readFileAsBase64 = (file = 'test-png.png') => {
+    const filePath = path.join('.', '__tests__', 'assets', file);
 
     return fs.readFileSync(filePath, { encoding: 'base64' });
 };
@@ -193,5 +193,26 @@ describe('Update user', () => {
         const profileImagePath = path.join(profileDirectory, inDBUser.image);
 
         expect(fs.existsSync(profileImagePath)).toBe(true);
+    });
+
+    it('deletes older img when user uploads a new one', async () => {
+        const fileInBase64 = readFileAsBase64();
+
+        const savedUser = await addUser();
+        const validUpdate = { username: 'user1-echo', image: fileInBase64 };
+
+        const res = await putUser(savedUser.id, validUpdate, {
+            auth: { email: savedUser.email, password: 'pjfqig7h9Kpmfd' },
+        });
+
+        const firstImage = res.body.image;
+
+        await putUser(savedUser.id, validUpdate, {
+            auth: { email: savedUser.email, password: 'pjfqig7h9Kpmfd' },
+        });
+
+        const profileImagePath = path.join(profileDirectory, firstImage);
+
+        expect(fs.existsSync(profileImagePath)).toBe(false);
     });
 });

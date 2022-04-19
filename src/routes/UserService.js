@@ -9,7 +9,7 @@ import randomString from '../shared/generator.js';
 import UserNotFoundException from './UserNotFoundException.js';
 import NotFoundException from '../error/NotFoundException.js';
 import { clearTokens } from './TokenService.js';
-import { saveProfileImg } from '../file/FileService.js';
+import { deleteProfileImage, saveProfileImg } from '../file/FileService.js';
 
 export const save = async (body) => {
     const { username, email, password } = body;
@@ -91,6 +91,10 @@ export const updateUser = async (id, updatedBody) => {
     const user = await User.findOne({ where: { id: id } });
 
     user.username = updatedBody.username;
+
+    if (user.image) {
+        await deleteProfileImage(updatedBody.image);
+    }
 
     // saves the user img when update contains img as base64
     user.image = await saveProfileImg(updatedBody.image);
