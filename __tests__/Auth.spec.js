@@ -7,9 +7,11 @@ import sequelize from '../src/config/db.js';
 import bcrypt from 'bcrypt';
 import Token from '../src/models/Token.js';
 
-// beforeAll(async () => {
-//     await sequelize.sync();
-// });
+beforeAll(async () => {
+    if (process.env.NODE_ENV === 'test') {
+        await sequelize.sync();
+    }
+});
 
 beforeEach(async () => {
     await User.destroy({ truncate: { cascade: true } });

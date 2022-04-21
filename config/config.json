@@ -1,0 +1,16 @@
+{
+    "development": {
+        "username": "postgres",
+        "password": "process.env.PASSWORD",
+        "database": "hoaxgate",
+        "host": "localhost",
+        "dialect": "postgresql"
+    },
+    "staging": {
+        "username": "postgres",
+        "password": "process.env.PASSWORD",
+        "database": "hoaxgate_test",
+        "host": "localhost",
+        "dialect": "postgresql"
+    }
+}

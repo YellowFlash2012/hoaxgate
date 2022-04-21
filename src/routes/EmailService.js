@@ -1,5 +1,6 @@
 import transporter from "../../config/email/emailTransporter.js"
 import nodemailer from "nodemailer"
+import logger from '../shared/logger.js';
 
 export const sendAccountActivation = async (email, token) => {
     const info = await transporter.sendMail({
@@ -14,6 +15,7 @@ export const sendAccountActivation = async (email, token) => {
     });
 
     if (process.env.NODE_ENV === 'development') {
+        logger.info('url: ' + nodemailer.getTestMessageUrl(info));
         console.log('url: ' + nodemailer.getTestMessageUrl(info));
     }
 };
@@ -31,6 +33,7 @@ export const sendPasswordReset = async (email, token) => {
     });
 
     if (process.env.NODE_ENV === 'development') {
+        logger.info('url: ' + nodemailer.getTestMessageUrl(info));
         console.log('url: ' + nodemailer.getTestMessageUrl(info));
     }
 };

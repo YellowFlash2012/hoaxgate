@@ -5,7 +5,9 @@ import Token from '../src/models/Token.js';
 import { scheduledCleanup } from '../src/routes/TokenService.js';
 
 beforeAll(async () => {
-    await sequelize.sync();
+    if (process.env.NODE_ENV === 'test') {
+        await sequelize.sync();
+    }
 });
 
 beforeEach(async () => {

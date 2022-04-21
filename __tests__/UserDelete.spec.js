@@ -8,7 +8,9 @@ import bcrypt from 'bcrypt';
 import Token from '../src/models/Token.js';
 
 beforeAll(async () => {
-    await sequelize.sync({ force: true });
+    if (process.env.NODE_ENV === 'test') {
+        await sequelize.sync();
+    }
 });
 
 beforeEach(async () => {

@@ -92,12 +92,14 @@ export const updateUser = async (id, updatedBody) => {
 
     user.username = updatedBody.username;
 
-    if (user.image) {
-        await deleteProfileImage(updatedBody.image);
-    }
+    if (updatedBody.image) {
+        if (user.image) {
+            await deleteProfileImage(updatedBody.image);
+        }
 
-    // saves the user img when update contains img as base64
-    user.image = await saveProfileImg(updatedBody.image);
+        // saves the user img when update contains img as base64
+        user.image = await saveProfileImg(updatedBody.image);
+    }
 
     await user.save();
 

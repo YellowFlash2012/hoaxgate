@@ -44,7 +44,7 @@ const app = express();
 
 app.use(middleware.handle(i18next));
 
-app.use(express.json());
+app.use(express.json({ limit: '3mb' }));
 app.use(cors());
 
 // to get an overview of http verbs involved in a FE req

@@ -9,11 +9,15 @@ import path from 'path';
 import fs from 'fs';
 import config from 'config';
 
+jest.useFakeTimers();
+
 const { uploadDir, profileDir } = config;
 const profileDirectory = path.join('.', uploadDir, profileDir);
 
 beforeAll(async () => {
-    await sequelize.sync({ alter: true });
+    if (process.env.NODE_ENV === 'test') {
+        await sequelize.sync();
+    }
 });
 
 beforeEach(async () => {
@@ -215,4 +219,88 @@ describe('Update user', () => {
 
         expect(fs.existsSync(profileImagePath)).toBe(false);
     });
+
+    it('returns 200 when img size is exactly 2mb', async () => {
+        const testPng = readFileAsBase64();
+        const pngByte = Buffer.from(testPng, 'base64').length;
+        const twoMB = 1024 * 1024 * 2;
+        const filling = 'a'.repeat(twoMB - pngByte);
+        const base64 = Buffer.from(filling).toString('base64');
+
+        const savedUser = await addUser();
+        const validUpdate = {
+            username: 'user1-echo',
+            image: testPng + filling,
+        };
+
+        const res = await putUser(savedUser.id, validUpdate, {
+            auth: { email: savedUser.email, password: 'pjfqig7h9Kpmfd' },
+        });
+
+        expect(res.status).toBe(200);
+    });
+
+    it('returns 400 when image size exceeds 2mb', async () => {
+        const fileSizeExceeds2MB = 'a'.repeat(1024 * 1024 * 2) + 'a';
+        const base64 = Buffer.from(fileSizeExceeds2MB).toString('base64');
+
+        const savedUser = await addUser();
+        const inValidUpdate = { username: 'user1-echo', image: base64 };
+
+        const res = await putUser(savedUser.id, inValidUpdate, {
+            auth: { email: savedUser.email, password: 'pjfqig7h9Kpmfd' },
+        });
+
+        expect(res.status).toBe(400);
+    });
+
+    it('keeps the old img after user updates only username', async () => {
+        const fileInBase64 = readFileAsBase64();
+
+        const savedUser = await addUser();
+        const validUpdate = { username: 'user1-echo', image: fileInBase64 };
+
+        const res = await putUser(savedUser.id, validUpdate, {
+            auth: { email: savedUser.email, password: 'pjfqig7h9Kpmfd' },
+        });
+
+        const firstImage = res.body.image;
+
+        await putUser(
+            savedUser.id,
+            { username: 'user1-echo-2' },
+            {
+                auth: { email: savedUser.email, password: 'pjfqig7h9Kpmfd' },
+            }
+        );
+
+        const profileImagePath = path.join(profileDirectory, firstImage);
+
+        expect(fs.existsSync(profileImagePath)).toBe(true);
+
+        const userInDB = await User.findOne({ where: { id: savedUser.id } });
+        expect(userInDB.image).toBe(firstImage);
+    });
+
+    it.each`
+        file              | status
+        ${'test-gif.gif'} | ${400}
+        ${'test-pdf.pdf'} | ${400}
+        ${'test-txt.txt'} | ${400}
+        ${'test-png.png'} | ${400}
+        ${'test-jpg.jpg'} | ${400}
+    `(
+        'returns $status when uploading $file as image',
+        async ({ file, status }) => {
+            const fileInBase64 = readFileAsBase64(file);
+
+            const savedUser = await addUser();
+            const updateBody = { username: 'user1-echo', image: fileInBase64 };
+
+            const res = await putUser(savedUser.id, updateBody, {
+                auth: { email: savedUser.email, password: 'pjfqig7h9Kpmfd' },
+            });
+            expect(res.status).toBe(status);
+        }
+    );
 });

@@ -22,7 +22,8 @@ import validationException from '../error/validationException.js';
 import pagination from '../middlewares/pagination.js';
 
 import ForbiddenException from './ForbiddenException.js';
-import NotFoundException from '../error/NotFoundException.js';
+
+import { isLessThan2MB, isSupportedFileType } from '../file/FileService.js';
 
 const router = express.Router();
 
@@ -106,17 +107,51 @@ router.get('/:id', async (req, res, next) => {
 });
 
 // update user
-router.put('/:id', async (req, res, next) => {
-    const authUser = req.authenticatedUser;
+router.put(
+    '/:id',
+    check('username')
+        .notEmpty()
+        .withMessage('Username can NOT be null')
+        .bail()
+        .isLength({ min: 4, max: 32 })
+        .withMessage('Username must have min 4 and max of 32 characters'),
+    check('image').custom(async (imageAsBase64String) => {
+        if (!imageAsBase64String) {
+            return true;
+        }
+        const buffer = Buffer.from(imageAsBase64String, 'base64');
+        if (!isLessThan2MB(buffer)) {
+            throw new Error("There is an issue with your image's size");
+        }
+        // checking for file type
+        const supportedType = await isSupportedFileType(buffer);
+        console.log(type);
 
-    if (!authUser || authUser.id != req.params.id) {
-        return next(new ForbiddenException('Unauthorized user update'));
+        if (!supportedType) {
+            throw new Error("This type of image is not supported!");
+        }
+
+        return true;
+    }),
+    async (req, res, next) => {
+        const authUser = req.authenticatedUser;
+
+        if (!authUser || authUser.id != req.params.id) {
+            return next(new ForbiddenException('Unauthorized user update'));
+        }
+
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            return next(new validationException(errors.array()));
+            // return res.status(400).send();
+        }
+
+        const user = await updateUser(req.params.id, req.body);
+
+        return res.send(user);
     }
-
-    const user = await updateUser(req.params.id, req.body);
-
-    return res.send(user);
-});
+);
 
 // delete user
 router.delete('/:id', async (req, res, next) => {
