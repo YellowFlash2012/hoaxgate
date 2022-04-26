@@ -15,5 +15,6 @@
         }
     },
     "uploadDir": "uploads-production",
-    "profileDir": "profile"
+    "profileDir": "profile",
+    "attachementDir": "attachment"
 }

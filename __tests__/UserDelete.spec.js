@@ -6,6 +6,7 @@ import User from '../src/models/Users.js';
 import sequelize from '../src/config/db.js';
 import bcrypt from 'bcrypt';
 import Token from '../src/models/Token.js';
+import Hoax from '../src/models/Hoax.js';
 
 beforeAll(async () => {
     if (process.env.NODE_ENV === 'test') {
@@ -149,5 +150,26 @@ describe('Delete user', () => {
         const tokenInDB = await Token.findOne({ where: { token: token2 } });
 
         expect(tokenInDB).toBeNull();
+    });
+
+    it('deletes hoax from db when delete user req is sent from authorized user', async () => {
+        const savedUser = await addUser();
+
+        const token = await auth({
+            auth: { email: 'user1@mail.io', password: 'pjfqig7h9Kpmfd' },
+        });
+
+        await request(app)
+            .post('/api/1.0/hoaxes')
+            .set('Authorization', `Bearer ${token}`)
+            .send({ content: 'hoax content' });
+
+        await deleteUser(savedUser.id, {
+            token: token1,
+        });
+
+        const hoaxes = await Hoax.findAll();
+
+        expect(hoaxes.length).toBe(0);
     });
 });

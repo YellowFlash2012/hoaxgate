@@ -8,14 +8,7 @@ sequelize.sync();
 
 scheduledCleanup();
 
-logger.error('error');
-logger.warn('warn');
-logger.info('info');
-logger.verbose('verbose');
-logger.debug('debug');
-logger.silly('silly');
-
-app.listen(5000, () => {
-    logger.info('App is running');
+app.listen(process.env.PORT || 5000, () => {
+    logger.info('App is running. Version: ' + process.env.npm_package_version);
     console.log('Server on | Port 5000');
 });

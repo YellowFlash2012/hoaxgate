@@ -1,6 +1,7 @@
 import { Sequelize } from "sequelize";
 
 import sequelize from '../config/db.js'
+import Hoax from './Hoax.js';
 import Token from './Token.js';
 
 const Model = Sequelize.Model;
@@ -40,5 +41,8 @@ User.init(
 );
 
 User.hasMany(Token, { onDelete: 'cascade', foreignKey: 'userId' });
+User.hasMany(Hoax, { onDelete: 'cascade', foreignKey: 'userId' });
+
+Hoax.belongsTo(User);
 
 export default User

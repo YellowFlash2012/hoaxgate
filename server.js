@@ -1,6 +1,7 @@
 import express from 'express'
 import userRoutes from './src/routes/Users.js'
 import authRoutes from './src/routes/Auth.js';
+import hoaxRoutes from './src/routes/Hoaxes.js';
 import { config } from 'dotenv';
 import morgan from 'morgan';
 import cors from 'cors';
@@ -19,8 +20,9 @@ import Backend from 'i18next-fs-backend';
 import middleware from 'i18next-http-middleware';
 config();
 
-const { uploadDir, profileDir } = configParams;
+const { uploadDir, profileDir, attachmentDir } = configParams;
 const profileFolder = path.join('.', uploadDir, profileDir);
+const attachmentFolder = path.join('.', uploadDir, attachmentDir);
 
 i18next
     .use(Backend)
@@ -57,12 +59,17 @@ app.use(
     '/images',
     express.static(profileFolder, { maxAge: 365 * 24 * 60 * 60 * 1000 })
 );
+app.use(
+    '/attachments',
+    express.static(attachmentFolder, { maxAge: 365 * 24 * 60 * 60 * 1000 })
+);
 
 // middleware for refreshes lastUsedAt when unexpired token is used an endpoint not needing auth
 app.use(tokenAuth);
 
 app.use('/api/1.0/users', userRoutes);
 app.use('/api/1.0/auth', authRoutes);
+app.use('/api/1.0/hoaxes', hoaxRoutes);
 
 app.use(errorHandler);
 

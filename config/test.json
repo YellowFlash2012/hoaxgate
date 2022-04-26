@@ -14,5 +14,6 @@
         }
     },
     "uploadDir": "uploads-test",
-    "profileDir": "profile"
+    "profileDir": "profile",
+    "attachementDir": "attachment"
 }

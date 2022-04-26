@@ -24,6 +24,7 @@ import pagination from '../middlewares/pagination.js';
 import ForbiddenException from './ForbiddenException.js';
 
 import { isLessThan2MB, isSupportedFileType } from '../file/FileService.js';
+import { getHoaxes } from './HoaxService.js';
 
 const router = express.Router();
 
@@ -128,7 +129,7 @@ router.put(
         console.log(type);
 
         if (!supportedType) {
-            throw new Error("This type of image is not supported!");
+            throw new Error('This type of image is not supported!');
         }
 
         return true;
@@ -228,5 +229,15 @@ router.put(
         res.send();
     }
 );
+
+router.get('/:id/hoaxes', pagination, async (req, res, next) => {
+    const { page, size } = req.pagination;
+    try {
+        const hoaxes = await getHoaxes(page, size, req.params.id);
+        res.send(hoaxes);
+    } catch (error) {
+        next(error);
+    }
+});
 
 export default router;

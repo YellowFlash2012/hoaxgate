@@ -4,7 +4,7 @@ import path from 'path';
 
 import config from 'config';
 
-const { uploadDir, profileDir } = config;
+const { uploadDir, profileDir, attachmentDir } = config;
 
 describe('Create Folders', () => {
     it('creates upload folder', async () => {
@@ -19,5 +19,13 @@ describe('Create Folders', () => {
         const profileFolder = path.join('.', uploadDir, profileDir);
 
         expect(fs.existsSync(profileFolder)).toBe(true);
+    });
+
+    it('creates attachments folder under upload folder', () => {
+        createFolders();
+
+        const attachmentFolder = path.join('.', uploadDir, profileDir);
+
+        expect(fs.existsSync(attachmentFolder)).toBe(true);
     });
 });
